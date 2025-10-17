@@ -1,42 +1,622 @@
-#root {
-  max-width: 1280px;
+/* ==========================
+   APP.CSS – tylko layout i komponenty
+   ========================== */
+
+.app {
+  max-width: 1300px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 20px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.coin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
-@keyframes logo-spin {
+.coin-content {
+  background-color: var(--bg);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.coin-choices {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn.selected {
+  background-color: var(--accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn.active {
+  transform: scale(1.03);
+  background-color: var(--accent);
+  color: #fff;
+}
+
+
+section {
+  padding: 80px 20px;
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+}
+
+p {
+  margin-bottom: 20px;
+}
+
+/* Dymek "o mnie" */
+.about-bubble {
+  position: absolute; /* lub fixed, jeśli chcesz środek ekranu */
+  top: 150px; /* dostosuj względem buttona */
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 300px;
+  padding: 20px;
+  background-color: var(--bg);
+  color: var(--text-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  z-index: 1000;
+  text-align: center;
+}
+
+/* Animacja fadeIn */
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+
+
+/* CTA BUTTONS */
+.cta {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.secondary {
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* GRIDS */
+.tech-grid, .project-grid {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 20px;
+  justify-items: center;
+}
+
+/* PROJECT CARDS */
+
+.project {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 50px; /* odstęp między opisem a zdjęciami */
+  padding: 40px;
+  margin-bottom: 60px; /* odstęp między kontenerami projektów */
+  background-color: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 1200px; /* stała szerokość kontenera projektu */
+  width: 100%;
+  transition: background-color 0.5s ease;
+  flex-wrap: nowrap;
+}
+
+.project-info {
+  flex: 1;
+  max-width: 45%;
+}
+
+.project-title {
+  font-size: 2.4em;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.project-description {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  color: var(--muted);
+}
+
+.project-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.project-review {
+  font-size: 0.95em;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+.tag {
+  background-color: var(--accent);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+}
+
+/* Kontener zdjęć */
+.project-images {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;  /* ukrycie paska przewijania w IE */
+  scrollbar-width: none;      /* ukrycie paska przewijania w Firefox */
+  scroll-behavior: smooth;    /* płynne przesuwanie slide */
+  flex: 0 0 690px; /* szerokość kontenera zdjęć */
+}
+
+.project-images::-webkit-scrollbar {
+  display: none; /* ukrycie paska przewijania w Chrome/Safari/Edge */
+}
+
+/* Pojedyncze zdjęcie */
+.image-container {
+  flex: 0 0 310px; /* stała szerokość każdego zdjęcia */
+  scroll-snap-align: start;
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 310px; /* stała wysokość */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+
+}
+
+.project-images {
+  -webkit-overflow-scrolling: touch; /* płynny scroll na iOS */
+  touch-action: pan-x; /* zezwala na przesuwanie poziome */
+}
+
+
+.image-container:hover img {
+  transform: scale(1.02);
+}
+
+.project-images img {
+  user-select: none;      /* wyłącza zaznaczanie tekstu/obrazów */
+  pointer-events: none;   /* uniemożliwia łapanie myszki przez img */
+}
+.project-images {
+  cursor: grab;
+}
+
+.project-images:active {
+  cursor: grabbing;
+}
+
+
+/* Placeholder images */
+.project-card::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 140px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(6,182,212,0.06));
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+
+
+.tech-name {
+  font-weight: 600;
+  color: var(--text-color);
+}
+.tech-item {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  align-items: center; /* centruje sam pasek w poziomie */
+}
+
+.tech-bar {
+  width: 420px;        /* szerokość całego paska */
+  height: 21px;
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.tech-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px; /* szerokość kolumny z nazwą i ikoną */
+}
+.tech-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+
+
+.tech-level {
+  height: 100%;
+  width: 0;          /* poziom zaawansowania od 0 do 100% */
+  background: var(--accent);
+  border-radius: 5px 0 0 5px; /* zaokrąglenie tylko z lewej strony */
+  position: absolute;  /* pozycjonowanie względem paska */
+  left: 0;             /* startuje od lewej krawędzi */
+  top: 0;
+  transition: width 1.5s ease; /* animacja szerokości */
+}
+
+.tech-title {
+  font-size: 2.4em;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+.tech-level.filled {
+  width: var(--level-width); /* w React ustawiamy style inline */
+}
+
+
+/* ==========================
+   TESTIMONIALS / OPINIE
+   ========================== */
+.testimonials {
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background-color: var(--bg-alt); /* opcjonalnie lekko inny kolor tła */
+}
+
+.testimonial-item {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  padding: 20px 25px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background-color: var(--bg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.testimonial-name {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+
+.testimonial-text {
+  font-size: 1em;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+
+
+/* ==========================
+   RESPONSYWNOŚĆ – TECH STACK
+   ========================== */
+
+/* Duże ekrany (powyżej 1100px) */
+@media (min-width: 1100px) {
+  .tech-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+
+  .tech-item {
+    max-width: 550px;
   }
 }
 
-.card {
-  padding: 2em;
+/* Tablety poziome (768px – 1099px) */
+@media (max-width: 1099px) and (min-width: 768px) {
+  .tech-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .tech-item {
+    max-width: 600px;
+  }
 }
 
-.read-the-docs {
-  color: #888;
+/* Tablety pionowe i większe telefony (480px – 767px) */
+@media (max-width: 767px) {
+  .tech-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .tech-left {
+    justify-content: flex-start;
+  }
+
+  .tech-bar {
+    width: 100%;
+  }
+
+  .tech-grid {
+    gap: 25px;
+    grid-template-columns: 1fr;
+  }
+
+  .tech-name {
+    font-size: 1.1em;
+  }
+
+  .tech-icon {
+    width: 26px;
+    height: 26px;
+  }
 }
+
+/* Małe telefony (poniżej 480px) */
+@media (max-width: 480px) {
+  .tech-item {
+    padding: 8px 0;
+    gap: 8px;
+  }
+
+  .tech-left {
+    gap: 8px;
+  }
+
+  .tech-name {
+    font-size: 1em;
+  }
+
+  .tech-bar {
+    height: 16px;
+    border-radius: 10px;
+  }
+
+  .tech-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+
+
+
+/* SOCIALS */
+.socials {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.socials a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* SMALL PADDING */
+.small-padding {
+  padding: 40px 20px; /* mniej niż standardowe 80px */
+}
+
+/* RESPONSYWNOŚĆ */
+@media (max-width: 768px) {
+  .tech-bar {
+    width: 100%;
+  }
+
+  .project {
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+  }
+
+  .project-info {
+    max-width: 100%;
+  }
+
+  .project-images {
+    flex: 1;
+    gap: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
+
+
+/* ==========================
+   RESPONSYWNOŚĆ – PROJEKTY
+   ========================== */
+
+/* Umożliwia przesuwanie zdjęć palcem na dotykowych urządzeniach */
+
+
+/* Telefony i tablety – zmiana układu na kolumnowy */
+@media (max-width: 1024px) {
+  .project {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 25px;
+    max-width: 600px;
+  }
+
+  .project-info {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .project-images {
+    flex: 0 0 auto;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .image-container {
+    flex: 0 0 260px;
+    height: 200px;
+  }
+
+  .project-title {
+    font-size: 1.8em;
+  }
+
+  .project-description {
+    font-size: 1em;
+  }
+
+  
+}
+
+/* Małe telefony – jeszcze węższe zdjęcia, większe odstępy */
+@media (max-width: 600px) {
+  .project {
+    padding: 20px;
+    max-width: 400px;
+  }
+
+  .project-images {
+    gap: 14px;
+  }
+
+  .image-container {
+    flex: 0 0 220px;
+    height: 160px;
+  }
+
+  .project-title {
+    font-size: 1.5em;
+  }
+
+  .project-description {
+    font-size: 0.95em;
+  }
+
+  .tag {
+    font-size: 0.8em;
+    padding: 5px 10px;
+  }
+
+  .testimonial-item {
+    padding: 15px 20px;
+  }
+  
+  .testimonial-name {
+    font-size: 1.3em;
+  }
+  
+  .testimonial-text {
+    font-size: 0.95em;
+  }
+}
+
+/* Ultra małe ekrany (np. iPhone SE, starsze Androidy) */
+@media (max-width: 400px) {
+  .image-container {
+    flex: 0 0 180px;
+    height: 140px;
+  }
+
+  .project {
+    gap: 20px;
+  }
+
+  .project-description {
+    font-size: 0.9em;
+  }
+
+  .testimonial-name {
+    font-size: 1.2em;
+  }
+  
+  .testimonial-text {
+    font-size: 0.9em;
+  }
+
+}
+
