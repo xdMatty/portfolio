@@ -7,20 +7,51 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
 
   // Refs do kontenerów projektów
-  const projectRefs = [useRef<HTMLDivElement | null>(null), useRef<HTMLDivElement | null>(null), useRef<HTMLDivElement | null>(null)];
+  const projectRefs = [
+    useRef<HTMLDivElement | null>(null),
+    useRef<HTMLDivElement | null>(null),
+    useRef<HTMLDivElement | null>(null),
+  ];
 
-const handleBonusClick = () => {
-  alert('Brawo! Wygrałeś 7% zniżki na kolejną stronę!');
+  const handleBonusClick = () => {
+    alert('Brawo! Wygrałeś darmową wycene!');
+  };
+
+// --- Hook losujący słowo ---
+const useRandomWord = (words: string[], intervalMs: number = 3000) => {
+  const [currentWord, setCurrentWord] = useState(words[0]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomWord = words[Math.floor(Math.random() * words.length)];
+      setCurrentWord(randomWord);
+    }, intervalMs);
+
+    return () => clearInterval(interval);
+  }, [words, intervalMs]);
+
+  return currentWord;
 };
 
-// na górze komponentu App (stany)
-const [showCoinGame, setShowCoinGame] = useState(false);
-const [playerChoice, setPlayerChoice] = useState<'Orzeł' | 'Reszka' | null>(null);
-const [coinResult, setCoinResult] = useState<'Orzeł' | 'Reszka' | null>(null);
-const [isFlipping, setIsFlipping] = useState(false);
+// --- Lista słów do animacji ---
+const rotatingWords = ['pozyskiwania klientów', 'budowania marki', 'utrzymywania uwagi', 'rozwijania biznesu'];
 
-const flipCoin = (choice: 'Orzeł' | 'Reszka') => {
-  if (isFlipping) return; // zabezpieczenie przed spamem
+
+
+
+
+  
+  // --- 🎮 Coin Flip Game States ---
+  const [showCoinGame, setShowCoinGame] = useState(false);
+  const [playerChoice, setPlayerChoice] = useState<'Orzeł' | 'Reszka' | null>(null);
+  const [coinResult, setCoinResult] = useState<'Orzeł' | 'Reszka' | null>(null);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [winStreak, setWinStreak] = useState(0);
+  const [maxDiscount, setMaxDiscount] = useState(0);
+    
+
+  const flipCoin = (choice: 'Orzeł' | 'Reszka') => {
+  if (isFlipping) return;
   setPlayerChoice(choice);
   setIsFlipping(true);
   setCoinResult(null);
@@ -30,71 +61,104 @@ const flipCoin = (choice: 'Orzeł' | 'Reszka') => {
     setCoinResult(result);
     setIsFlipping(false);
 
-    // ✅ reset dopiero po chwili od pokazania wyniku
+    if (result === choice) {
+      setWinStreak(prev => {
+        const newStreak = prev + 1;
+        if (newStreak <= 7) {
+          setMaxDiscount(prevDisc => Math.min(7, Math.max(prevDisc, newStreak)));
+        }
+        return newStreak;
+      });
+    } else {
+      setWinStreak(0); // reset streaka, ale zniżka zostaje
+    }
+
+    // reset po chwili
     setTimeout(() => {
       setPlayerChoice(null);
       setCoinResult(null);
-    }, 2500);
+    }, 2100);
   }, 1500);
 };
 
 
 
+const [wordIndex, setWordIndex] = useState(0);
+const [displayedText, setDisplayedText] = useState('');
+const [deleting, setDeleting] = useState(false);
+
+useEffect(() => {
+  const currentWord = rotatingWords[wordIndex];
+  let timer: number; 
+
+  if (!deleting) {
+    if (displayedText.length < currentWord.length) {
+      timer = window.setTimeout(() => {
+        setDisplayedText(currentWord.slice(0, displayedText.length + 1));
+      }, 150);
+    } else {
+      timer = window.setTimeout(() => setDeleting(true), 1000);
+    }
+  } else {
+    if (displayedText.length > 0) {
+      timer = window.setTimeout(() => {
+        setDisplayedText(currentWord.slice(0, displayedText.length - 1));
+      }, 80);
+    } else {
+      setDeleting(false);
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }
+  }
+
+  return () => clearTimeout(timer);
+}, [displayedText, deleting, wordIndex]);
 
 
-  // IntersectionObserver dla animacji sekcji
+
+
+  // --- Sekcja animacji i drag scroll ---
   useEffect(() => {
     const sections = document.querySelectorAll('section');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
+          if (entry.isIntersecting) entry.target.classList.add('visible');
         });
       },
       { threshold: 0.2 }
     );
-
     sections.forEach(sec => observer.observe(sec));
     return () => observer.disconnect();
   }, []);
 
-  // Animacja ładowania tech stack
   useEffect(() => {
     const timer = setTimeout(() => setLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
   const stackRef = useRef<HTMLDivElement | null>(null);
-const [stackVisible, setStackVisible] = useState(false);
+  const [stackVisible, setStackVisible] = useState(false);
 
-useEffect(() => {
-  if (!stackRef.current) return;
+  useEffect(() => {
+    if (!stackRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setStackVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(stackRef.current);
+    return () => observer.disconnect();
+  }, []);
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setStackVisible(true); // tutaj uruchamiamy animację
-          observer.disconnect(); // tylko raz
-        }
-      });
-    },
-    { threshold: 0.3 } // 30% sekcji widoczne
-  );
-
-  observer.observe(stackRef.current);
-
-  return () => observer.disconnect();
-}, []);
-
-
-
-  // Funkcja drag & scroll
+  // Drag scroll
   const enableDragScroll = (ref: React.RefObject<HTMLDivElement | null>) => {
     if (!ref.current) return;
-
     let isDown = false;
     let startX: number;
     let scrollLeft: number;
@@ -105,14 +169,13 @@ useEffect(() => {
       startX = e.pageX - ref.current!.offsetLeft;
       scrollLeft = ref.current!.scrollLeft;
     };
-
     const mouseUp = () => { isDown = false; };
     const mouseLeave = () => { isDown = false; };
     const mouseMove = (e: MouseEvent) => {
       if (!isDown) return;
       e.preventDefault();
       const x = e.pageX - ref.current!.offsetLeft;
-      const walk = (x - startX) * 2; // prędkość przesuwania
+      const walk = (x - startX) * 2;
       ref.current!.scrollLeft = scrollLeft - walk;
     };
 
@@ -128,90 +191,124 @@ useEffect(() => {
       ref.current?.removeEventListener('mousemove', mouseMove);
     };
   };
-const [showAbout, setShowAbout] = useState(false);
 
-const toggleAbout = () => setShowAbout(prev => !prev);
-
-
-  
-
-  // Włącz drag scroll dla wszystkich projektów
   useEffect(() => {
     const cleanups = projectRefs.map(ref => enableDragScroll(ref));
     if (projectRefs[2].current) {
-    const firstImgWidth = projectRefs[2].current.querySelector('.image-container')!.clientWidth;
-    const gap = 20; // taki sam jak w CSS `gap` między zdjęciami
-    projectRefs[2].current.scrollLeft = firstImgWidth + gap;}
+      const firstImgWidth = projectRefs[2].current.querySelector('.image-container')!.clientWidth;
+      const gap = 20;
+      projectRefs[2].current.scrollLeft = firstImgWidth + gap;
+    }
     return () => cleanups.forEach(clean => clean && clean());
   }, []);
 
-
-  
   return (
-    <div className="app">
+    <div className="app  ">
       <Navbar />
 
       {/* HERO */}
-      <section id="hero" className="hero small-padding">
-        <h1>Witam serdecznie! 👋</h1>
-        <p>Chcesz szybko, tanio i dobrze?</p>
-         <div className="cta">
-  <button className="btn" onClick={() => { setShowCoinGame(true); setCoinResult(null); }}>
-    Zagrajmy w grę 🎲
-  </button>
-</div>
-      </section>
+    <section id="hero" className="relative py-20">
+  <h1 className="text-center font-bold text-white leading-tight relative">
+    
+    <span className="text-4xl text-gray-400 font-light">od</span>{' '}
 
-{showCoinGame && (
-  <div className="coin-modal">
-    <div className="coin-content">
-      <h3>Obstaw Orła lub Reszkę!</h3>
+    {/* Hover dla "pomysłu" */}
+    <span className="relative group inline-block mx-1">
+      <span className="text-8xl text-purple-400 font-semibold cursor-pointer">
+        pomysłu
+      </span>
+      <span className="absolute left-1/2 -translate-x-1/2 -top-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-pink-400 text-4xl font-semibold mt-5">
+        twojego
+      </span>
+    </span>{' '}
+    
+    <span className="text-4xl text-gray-400 font-light">do</span>{' '}
 
-      <div className="coin-choices">
-        <button
-          className={`btn ${playerChoice === 'Orzeł' ? 'active' : ''}`}
-          onClick={() => flipCoin('Orzeł')}
-          disabled={isFlipping || playerChoice !== null}
-        >
-          Orzeł
-        </button>
+    {/* Hover dla "strony" */}
+    <span className="relative group inline-block mx-1">
+      <span className="text-8xl text-purple-400 font-semibold cursor-pointer">
+        strony
+      </span>
+      <span className="absolute left-1/2 -translate-x-1/2 -top-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-pink-400 text-4xl font-semibold">
+        perfekcyjnej
+      </span>
+    </span>
+  </h1>
+</section>
 
-        <button
-          className={`btn ${playerChoice === 'Reszka' ? 'active' : ''}`}
-          onClick={() => flipCoin('Reszka')}
-          disabled={isFlipping || playerChoice !== null}
-        >
-          Reszka
-        </button>
-      </div>
 
-      {isFlipping && <p>Moneta w powietrzu... 🪙</p>}
 
-      {coinResult && (
-        <p>
-          {coinResult === playerChoice ? (
-            <><strong>Wygrałeś! 🎉</strong> — dobrze obstawiłeś.<br/></>
-          ) : (
-            <><strong>Niestety, przegrałeś.</strong> — spróbuj ponownie.<br/></>
-          )}
-          Wynik: <strong>{coinResult}</strong>
-        </p>
-      )}
 
-      <button className="btn secondary" onClick={() => setShowCoinGame(false)}>
-        Zamknij
-      </button>
-    </div>
+  <section id="highlight" className="highlight">
+  <div className="highlight-text">
+    <h2>Robimy strony internetowe</h2>
+    <h3>Stworzone do&nbsp;
+      <span className="rotating-word">{displayedText}</span>
+      <span className="cursor">|</span>
+    </h3>
+    <p>Powiedz nam czego potrzebujesz, a my Ci to ogarniemy.</p>
+
   </div>
-)}
+
+  <div className="highlight-image">
+    <img src="/img/ujdzie.jpg" alt="Grafika" />
+  </div>
+</section>
 
 
 
+
+      {/* --- MODAL COIN GAME --- */}
+              {showCoinGame && (
+          <div className="coin-modal">
+            <div className="coin-content">
+              <h3 className="coin-title">🎯 Rzuć monetą!</h3>
+
+              <div className="coin-choices">
+                <button
+                  className={`coin-btn ${playerChoice === 'Orzeł' ? 'active' : ''}`}
+                  onClick={() => flipCoin('Orzeł')}
+                  disabled={isFlipping || playerChoice !== null}
+                >
+                  Orzeł
+                </button>
+
+                <button
+                  className={`coin-btn ${playerChoice === 'Reszka' ? 'active' : ''}`}
+                  onClick={() => flipCoin('Reszka')}
+                  disabled={isFlipping || playerChoice !== null}
+                >
+                  Reszka
+                </button>
+              </div>
+
+              {isFlipping && <p className="coin-status">Moneta w powietrzu... 🪙</p>}
+
+              {coinResult && (
+                <p className="coin-result">
+                  {coinResult === playerChoice ? (
+                    <><strong>Wygrałeś! 🎉</strong> – dobrze obstawiłeś.<br /></>
+                  ) : (
+                    <><strong>Niestety, przegrałeś.</strong> – spróbuj ponownie.<br /></>
+                  )}
+                </p>
+              )}
+
+              <div className="coin-stats">
+                <p>🔥 Streak: <strong>{winStreak}</strong></p>
+                <p>💰 Twój max win: <strong>{maxDiscount}%</strong></p>
+              </div>
+
+              <button className="btn secondary" onClick={() => setShowCoinGame(false)}>
+                Zamknij
+              </button>
+            </div>
+          </div>
+        )}
 
 
       {/* PROJECTS */}
       <section id="projects" className="projects">
-        
         {/* Projekt 1 */}
         <div className="project">
           <div className="project-info">
@@ -219,194 +316,133 @@ const toggleAbout = () => setShowAbout(prev => !prev);
             <p className="project-description">
               Tworząc stronę dla fanów szybkich fur, skupiłem się na wrażeniu luksusu, efektownych animacjach i klarownym przekazie marki.
             </p>
-            <p className="project-review">
-      "Profesjonalna realizacja! Strona wygląda świetnie i działa bez zarzutu." – Jan Kowalski
-    </p>
+            <p className="project-review">"Profesjonalna realizacja! Strona wygląda świetnie i działa bez zarzutu." – Jan Kowalski</p>
             <div className="project-tags">
               <span className="tag">Branding</span>
               <span className="tag">Key Visual</span>
             </div>
           </div>
           <div className="project-images" ref={projectRefs[0]}>
-            <div className="image-container">
-              <img src="/img/auto1.png" alt="Smaochodowo" />
-            </div>
-            <div className="image-container">
-              <img src="/img/auto3.png" alt="Smaochodowo" />
-            </div>
-            <div className="image-container">
-              <img src="/img/auto2.png" alt="Smaochodowo" />
-            </div>
+            <div className="image-container"><img src="/img/auto1.png" alt="Auto" /></div>
+            <div className="image-container"><img src="/img/auto3.png" alt="Auto" /></div>
+            <div className="image-container"><img src="/img/auto2.png" alt="Auto" /></div>
           </div>
         </div>
 
         {/* Projekt 2 */}
         <div className="project">
           <div className="project-info">
-            <h2 className="project-title">Kotki😸</h2>
+            <h2 className="project-title">Kotki 😸</h2>
             <p className="project-description">
-              Wykonałem interaktywną stronę o kotkach, łącząc estetyczny design, animacje przy hover i drag & scroll, prezentując moje zdolności front-endowe w React + TypeScript.
+              Interaktywna strona o kotkach z drag & scroll i animacjami hover w React + TypeScript.
             </p>
-<p className="project-review">
-      "Strona jest przejrzysta i bardzo przyjazna dla użytkownika! Animacje robią wrażenie." - Studio Kreatywne PurrDesign
-    </p>
+            <p className="project-review">"Strona jest przejrzysta i bardzo przyjazna! Animacje robią wrażenie." – PurrDesign</p>
             <div className="project-tags">
               <span className="tag">UI/UX</span>
               <span className="tag">React</span>
             </div>
           </div>
           <div className="project-images" ref={projectRefs[1]}>
-            <div className="image-container">
-              <img src="/img/kotek1.png" alt="Kotki" />
-            </div>
-            <div className="image-container">
-              <img src="/img/kotek2.png" alt="Kotki" />
-            </div>
-            <div className="image-container">
-              <img src="/img/kotek3.png" alt="Kotki" />
-            </div>
-            <div className="image-container">
-              <img src="/img/kotek4.png" alt="Kotki" />
-            </div>
+            <div className="image-container"><img src="/img/kotek1.png" alt="Kotki" /></div>
+            <div className="image-container"><img src="/img/kotek2.png" alt="Kotki" /></div>
+            <div className="image-container"><img src="/img/kotek3.png" alt="Kotki" /></div>
+            <div className="image-container"><img src="/img/kotek4.png" alt="Kotki" /></div>
           </div>
         </div>
 
-
- {/* Projekt twoj! */}
+        {/* Projekt 3 */}
         <div className="project">
           <div className="project-info">
             <h2 className="project-title">Twoja strona</h2>
-            <p className="project-description">
-Tutaj może znaleźć się Twój projekt. Skontaktuj się, a razem stworzymy coś wyjątkowego!        </p>
-<p className="project-review">
-      "Zostaw parę słów"
-    </p>
-            <div className="project-tags">
-              <span className="tag">Współpraca</span>
-
-            </div>
+            <p className="project-description">Tutaj może znaleźć się Twój projekt — stwórzmy coś wyjątkowego razem!</p>
+            
+            <div className="project-tags"><span className="tag">Współpraca</span></div>
           </div>
           <div className="project-images" ref={projectRefs[2]}>
-
-             <div className="image-container" onClick={handleBonusClick}>
-              <img src="/img/jackpot.jpg" alt="Smaochodowo" />
-            </div>
-            <div className="image-container">
-              <img src="/img/twoja1.jpg" alt="Smaochodowo" />
-            </div>
-            <div className="image-container">
-              <img src="/img/twoja2.jpg" alt="Smaochodowo" />
-            </div>
-            <div className="image-container">
-              <img src="/img/xd.avif" alt="Smaochodowo" />
-            </div>
-            
+            <div className="image-container" onClick={handleBonusClick}><img src="/img/jackpot.jpg" alt="Bonus" /></div>
+            <div className="image-container"><img src="/img/twoja1.jpg" alt="Twoja strona" /></div>
+            <div className="image-container"><img src="/img/twoja2.jpg" alt="Twoja strona" /></div>
+            <div className="image-container"><img src="/img/xd.avif" alt="Twoja strona" /></div>
           </div>
         </div>
-
       </section>
-      
 
-{/* TECH STACK */}
-<section id="stack" className="stack small-padding" ref={stackRef}>
-  <h2 className='tech-title'>Tech Stack</h2>
+      {/* TECH STACK */}
+     <section id="stack" className="stack small-padding" ref={stackRef}>
+  <h2 className="tech-title">Tech Stack</h2>
 
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/js.png" alt="JavaScript" className="tech-icon" />
-      <span className='tech-name'>JavaScript</span>
+  <div className="tech-grid">
+    {/* Kolumna 1 */}
+    <div className="flex flex-col gap-6">
+      {[
+        ['JavaScript', 'js.png', '52%'],
+        ['TypeScript', 'ts.png', '82%'],
+        ['React', 'react.png', '73%'],
+        ['Angular', 'angular.png', '68%'],
+        ['Vite', 'vite.png', '76%'],
+      ].map(([name, img, level]) => (
+        <div className="tech-item" key={name}>
+          <div className="tech-left">
+            <img src={`/img/${img}`} alt={name} className="tech-icon" />
+            <span className="tech-name">{name}</span>
+          </div>
+          <div className="tech-bar">
+            <div
+              className={`tech-level ${stackVisible ? 'filled' : ''}`}
+              style={{ '--level-width': level } as React.CSSProperties}
+            ></div>
+          </div>
+        </div>
+      ))}
     </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '72%' } as React.CSSProperties}
-      ></div>
+
+    {/* Kolumna 2 */}
+    <div className="flex flex-col gap-6">
+      {[
+        ['Tailwind CSS', 'tailwind.png', '72%'],
+        ['Node.js', 'node.png', '65%'],
+        ['PHP', 'php.png', '40%'],
+        ['CSS', 'css.png', '75%'],
+        ['HTML', 'html.png', '90%'],
+      ].map(([name, img, level]) => (
+        <div className="tech-item" key={name}>
+          <div className="tech-left">
+            <img src={`/img/${img}`} alt={name} className="tech-icon" />
+            <span className="tech-name">{name}</span>
+          </div>
+          <div className="tech-bar">
+            <div
+              className={`tech-level ${stackVisible ? 'filled' : ''}`}
+              style={{ '--level-width': level } as React.CSSProperties}
+            ></div>
+          </div>
+        </div>
+      ))}
     </div>
   </div>
-
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/ts.png" alt="TypeScript" className="tech-icon" />
-      <span className='tech-name'>TypeScript</span>
-    </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '82%' } as React.CSSProperties}
-      ></div>
-    </div>
-  </div>
-
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/react.png" alt="React" className="tech-icon" />
-      <span className='tech-name'>React</span>
-    </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '73%' } as React.CSSProperties}
-      ></div>
-    </div>
-  </div>
-
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/angular.png" alt="Angular" className="tech-icon" />
-      <span className='tech-name'>Angular</span>
-    </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '78%' } as React.CSSProperties}
-      ></div>
-    </div>
-  </div>
-
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/vite.png" alt="Vite" className="tech-icon" />
-      <span className='tech-name'>Vite</span>
-    </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '66%' } as React.CSSProperties}
-      ></div>
-    </div>
-  </div>
-
-  <div className="tech-item">
-    <div className="tech-left">
-      <img src="/img/tailwind.png" alt="Tailwind CSS" className="tech-icon" />
-      <span className='tech-name'>Tailwind CSS</span>
-    </div>
-    <div className="tech-bar">
-      <div
-        className={`tech-level ${stackVisible ? 'filled' : ''}`}
-        style={{ '--level-width': '80%' } as React.CSSProperties}
-      ></div>
-    </div>
-  </div>
-
 </section>
-    
+
+
 
 
       {/* CONTACT */}
-      <section id="contact" className="contact small-padding">
-        <h2>Kontakt</h2>
-        <p>Masz pomysł? 🚀 Napisz do mnie, chętnie pomogę go zrealizować.</p>
-        <div className="socials">
+      <section id="contact" className="contact small-padding ">
+
+        <div className="cta">
+          <button className="btn" onClick={() => { setShowCoinGame(true); setCoinResult(null); }}>
+            Zagrajmy w grę 🎲
+          </button>
+        </div>
+
+
+        <div className="socials mt-1">
           <a href="https://github.com/xdMatty" target="_blank">GitHub</a>
-          <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-          <a href="mailto:mateusz@example.com">E-mail</a>
+          <a href="mailto:matt54698@gmail.com">E-mail</a>
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer>
-        <p>© 2025 Mateusz.dev | Stworzone z ❤️ w React + TS</p>
+        <p>© 2025 MattyW | Stworzone z ❤️ w React + TS</p>
       </footer>
     </div>
   );

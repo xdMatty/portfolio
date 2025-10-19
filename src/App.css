@@ -1,3 +1,7 @@
+@import "tailwindcss";
+
+
+
 /* ==========================
    APP.CSS – tylko layout i komponenty
    ========================== */
@@ -8,52 +12,212 @@
   margin: 0 auto;
   padding: 20px;
   text-align: center;
+
 }
 
-.coin-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+body {
+  background: linear-gradient(to bottom, #42057a 0%, #0d2464 30%, #000000 100%); /* fiolet -> czarny */
+  min-height: 100vh;       /* zajmuje całą wysokość ekranu */
+  margin: 0;               /* usuwa marginesy */
+  font-family: sans-serif; /* opcjonalnie ładna czcionka */
 }
 
-.coin-content {
-  background-color: var(--bg);
-  padding: 30px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+.hero {
+  
 }
 
-.coin-choices {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  margin-bottom: 20px;
+#hero .hero1 {
+  font-weight: 600;
 }
 
-.btn.selected {
+/* CTA Button w HERO */
+#contact .btn {
   background-color: var(--accent);
-  color: white;
+  color: #fff;                  /* tekst na biało */
+  border: none;
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+#contact .btn:hover {
+  filter: brightness(1.1);      /* lekki efekt przy hover */
   transform: scale(1.05);
 }
 
 
-.btn:disabled {
-  opacity: 0.5;
+
+
+
+
+
+
+/* --- COIN GAME --- */
+
+.coin-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.coin-content {
+  background: #fff;
+    color: #333;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.coin-title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.coin-choices {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.coin-btn {
+  background-color: var(--accent);
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.coin-btn:hover:not(:disabled) {
+  background-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.coin-btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
-.btn.active {
-  transform: scale(1.03);
-  background-color: var(--accent);
-  color: #fff;
+
+.coin-btn.active {
+  background-color: #28a745;
 }
+
+.coin-status {
+  margin: 1rem 0;
+  font-weight: bold;
+  color: #444;
+}
+
+.coin-result {
+  margin: 1rem 0;
+  font-size: 1.1rem;
+}
+
+.coin-stats {
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.btn.secondary {
+  background: #444;
+  color: #fff;
+  margin-top: 1rem;
+}
+
+
+/* Sekcja highlight - layout flex */
+.highlight {
+  display: flex;
+  flex-direction: row;       /* tekst po lewej, obrazek po prawej */
+  justify-content: space-between; /* rozstawienie elementów */
+  align-items: center;       /* wyśrodkowanie w pionie */
+  padding: 80px 20px;
+  gap: 40px;                 /* odstęp między tekstem a obrazkiem */
+}
+
+/* Lewa kolumna - tekst */
+.highlight-text {
+  flex: 1;
+  text-align: left;
+}
+
+/* Prawa kolumna - grafika */
+.highlight-image {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; /* obrazek przy prawej krawędzi */
+}
+
+.highlight-image img {
+  max-width: 80%;
+  height: auto;
+  border-radius: 12px;
+}
+
+
+.highlight h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.highlight h3 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;           /* przyklej do lewej *  */    
+  display: inline-block;      /* traktuje całość jak pojedynczy blok w linii */
+
+}
+
+.rotating-word {
+  font-weight: 700;
+  color: var(--accent); /* możesz zmienić kolor słowa */
+  transition: all 0.1s ease;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+
+.highlight-subtitle {
+  font-size: 1.5rem;
+}
+
+
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+
+
 
 
 section {
@@ -82,23 +246,6 @@ p {
   margin-bottom: 20px;
 }
 
-/* Dymek "o mnie" */
-.about-bubble {
-  position: absolute; /* lub fixed, jeśli chcesz środek ekranu */
-  top: 150px; /* dostosuj względem buttona */
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 300px;
-  padding: 20px;
-  background-color: var(--bg);
-  color: var(--text-color);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  opacity: 0;
-  animation: fadeIn 0.5s forwards;
-  z-index: 1000;
-  text-align: center;
-}
 
 /* Animacja fadeIn */
 @keyframes fadeIn {
@@ -111,6 +258,33 @@ p {
     transform: translateX(-50%) translateY(0);
   }
 }
+
+
+@keyframes floatWord {
+  0% {
+    transform: translateY(-60px) scale(0.5);
+    opacity: 0;
+    color: #a855f7; /* jasny fiolet */
+  }
+  25% {
+    transform: translateY(0px) scale(1.3);
+    opacity: 1;
+    color: #ec4899; /* różowy */
+  }
+  75% {
+    transform: translateY(30px) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(60px) scale(0.6);
+    opacity: 0;
+  }
+}
+
+.animate-floatWord {
+  animation: floatWord 3s ease-in-out forwards;
+}
+
 
 
 
@@ -156,7 +330,7 @@ p {
   margin-bottom: 60px; /* odstęp między kontenerami projektów */
   background-color: var(--bg);
   border-radius: var(--radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
   max-width: 1200px; /* stała szerokość kontenera projektu */
   width: 100%;
   transition: background-color 0.5s ease;
@@ -460,6 +634,14 @@ p {
 
 
 /* SOCIALS */
+#contact .socials {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 120px; /* <-- zwiększa odstęp między buttonem a socialami */
+}
+
+
 .socials {
   display: flex;
   gap: 20px;
@@ -620,3 +802,15 @@ footer {
 
 }
 
+/* Responsywność - mniejsze ekrany */
+@media (max-width: 768px) {
+  .highlight {
+    flex-direction: column; /* układ kolumnowy na telefonach */
+    text-align: center;
+  }
+
+  .highlight-image {
+    justify-content: center; /* centrowanie obrazka */
+    margin-top: 20px;
+  }
+}

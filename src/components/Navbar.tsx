@@ -1,16 +1,8 @@
-import { useState } from 'react';
+
 import './Navbar.css';
 
 export default function Navbar() {
-  const [darkMode, setDarkMode] = useState(false);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.setAttribute(
-      'data-theme',
-      !darkMode ? 'dark' : 'light'
-    );
-  };
 
   return (
     <nav className="navbar">
@@ -20,11 +12,8 @@ export default function Navbar() {
                 <li><a href="#projects">Projekty</a></li>
         <li><a href="#stack">Tech Stack</a></li>
 
-        <li><a href="#contact">Kontakt</a></li>
       </ul>
-      <button className="theme-toggle" onClick={toggleDarkMode}>
-        {darkMode ? '☀️' : '🌙'}
-      </button>
+     
     </nav>
   );
 }
