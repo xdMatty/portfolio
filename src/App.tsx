@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 
 export default function App() {
   // State do animacji tech stack
-  const [loaded, setLoaded] = useState(false);
+  const [, setLoaded] = useState(false);
 
   // Refs do kontenerów projektów
   const projectRefs = [
@@ -18,20 +18,6 @@ export default function App() {
   };
 
 // --- Hook losujący słowo ---
-const useRandomWord = (words: string[], intervalMs: number = 3000) => {
-  const [currentWord, setCurrentWord] = useState(words[0]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const randomWord = words[Math.floor(Math.random() * words.length)];
-      setCurrentWord(randomWord);
-    }, intervalMs);
-
-    return () => clearInterval(interval);
-  }, [words, intervalMs]);
-
-  return currentWord;
-};
 
 // --- Lista słów do animacji ---
 const rotatingWords = ['pozyskiwania klientów', 'budowania marki', 'utrzymywania uwagi', 'rozwijania biznesu'];
@@ -437,7 +423,6 @@ useEffect(() => {
 
         <div className="socials mt-1">
           <a href="https://github.com/xdMatty" target="_blank">GitHub</a>
-          <a href="mailto:matt54698@gmail.com">E-mail</a>
         </div>
       </section>
 
