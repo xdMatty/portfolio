@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
+const { BASE_URL } = import.meta.env;
 
 export default function App() {
   // State do animacji tech stack
@@ -237,7 +238,7 @@ useEffect(() => {
   </div>
 
   <div className="highlight-image">
-    <img src="/img/ujdzie.jpg" alt="Grafika" />
+    <img src="${BASE_URL}/img/ujdzie.jpg" alt="Grafika" />
   </div>
 </section>
 
